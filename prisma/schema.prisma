@@ -29,6 +29,7 @@ model Major {
   startDate DateTime
   endDate   DateTime
   status    String   @default("UPCOMING") // UPCOMING, PICKS_OPEN, IN_PROGRESS, COMPLETED
+  cutScore  Int?     // cut line relative to par, e.g. +3 means 3 over par
   players   Player[]
   picks     Pick[]
   earnings  Earning[]
