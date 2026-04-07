@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  password    String
+  role        String   @default("USER") // USER or ADMIN
+  inviteToken String?  @unique
+  isActive    Boolean  @default(false)
+  picks       Pick[]
+  earnings    Earning[]
+  createdAt   DateTime @default(now())
+}
+
+model Major {
+  id        String   @id @default(cuid())
+  name      String
+  year      Int
+  venue     String
+  location  String
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("UPCOMING") // UPCOMING, PICKS_OPEN, IN_PROGRESS, COMPLETED
+  players   Player[]
+  picks     Pick[]
+  earnings  Earning[]
+}
+
+model Player {
+  id           String      @id @default(cuid())
+  name         String
+  majorId      String
+  major        Major       @relation(fields: [majorId], references: [id])
+  tier         Int         // 1, 2, 3, 4
+  odds         String?
+  worldRanking Int?
+  scores       RoundScore[]
+  totalScore   Int?        // total strokes relative to par
+  position     Int?        // final/current position
+  status       String      @default("ACTIVE") // ACTIVE, CUT, WD, DQ
+  picks        PickPlayer[]
+}
+
+model Pick {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  majorId     String
+  major       Major        @relation(fields: [majorId], references: [id])
+  players     PickPlayer[]
+  submittedAt DateTime     @default(now())
+  isLocked    Boolean      @default(false)
+
+  @@unique([userId, majorId])
+}
+
+model PickPlayer {
+  id       String @id @default(cuid())
+  pickId   String
+  pick     Pick   @relation(fields: [pickId], references: [id])
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+}
+
+model RoundScore {
+  id         String  @id @default(cuid())
+  playerId   String
+  player     Player  @relation(fields: [playerId], references: [id])
+  round      Int
+  score      Int?    // strokes for this round
+  scoreToPar Int?    // relative to par for this round
+
+  @@unique([playerId, round])
+}
+
+model Earning {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  majorId String
+  major   Major  @relation(fields: [majorId], references: [id])
+  amount  Float
+  rank    Int
+
+  @@unique([userId, majorId])
+}
