@@ -21,15 +21,14 @@ export default async function AdminPage() {
     prisma.user.findMany({
       select: {
         id: true,
-        email: true,
         name: true,
+        accessCode: true,
         role: true,
         isActive: true,
-        inviteToken: true,
         createdAt: true,
         _count: { select: { picks: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
     }),
     prisma.major.findMany({
       where: { year: 2026 },
@@ -50,8 +49,13 @@ export default async function AdminPage() {
   };
 
   const serializedUsers = users.map(u => ({
-    ...u,
+    id: u.id,
+    name: u.name,
+    accessCode: u.accessCode,
+    role: u.role,
+    isActive: u.isActive,
     createdAt: u.createdAt.toISOString(),
+    _count: u._count,
   }));
 
   return (
@@ -75,7 +79,7 @@ export default async function AdminPage() {
             { label: 'Total Members', value: users.filter(u => u.role !== 'ADMIN').length },
             { label: 'Active Members', value: users.filter(u => u.isActive && u.role !== 'ADMIN').length },
             { label: 'Total Picks', value: users.reduce((sum, u) => sum + u._count.picks, 0) },
-            { label: 'Pending Invites', value: users.filter(u => !u.isActive).length },
+            { label: 'Picks Per Major', value: Math.round(users.reduce((sum, u) => sum + u._count.picks, 0) / 4) || 0 },
           ].map(stat => (
             <div key={stat.label} className="card-green p-5 rounded-xl text-center">
               <div className="font-serif text-3xl font-bold mb-1" style={{ color: '#c9a84c' }}>

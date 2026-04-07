@@ -9,16 +9,16 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String
-  password    String
-  role        String   @default("USER") // USER or ADMIN
-  inviteToken String?  @unique
-  isActive    Boolean  @default(false)
-  picks       Pick[]
-  earnings    Earning[]
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  email      String    @unique  // kept for internal use only
+  name       String
+  accessCode String    @unique  // the code users type to log in
+  password   String    @default("") // unused, kept for schema compat
+  role       String    @default("USER") // USER or ADMIN
+  isActive   Boolean   @default(true)
+  picks      Pick[]
+  earnings   Earning[]
+  createdAt  DateTime  @default(now())
 }
 
 model Major {

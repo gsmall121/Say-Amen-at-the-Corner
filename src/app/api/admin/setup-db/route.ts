@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
 
 // One-time database setup endpoint — creates all tables and seeds initial data
 // Visit /api/admin/setup-db after first deploy to initialize the database
 export async function GET() {
   try {
-    // Test connection
     await prisma.$connect()
 
     // Check if already seeded
@@ -15,13 +13,12 @@ export async function GET() {
       return NextResponse.json({ message: 'Database already set up', status: 'ok' })
     }
 
-    // Create admin user
-    const hashedPassword = await bcrypt.hash('Admin2026!', 12)
+    // Create admin user — logs in with access code COMMISSIONER
     await prisma.user.create({
       data: {
-        email: 'admin@sayamen.com',
+        email: 'admin@pool.internal',
         name: 'Commissioner',
-        password: hashedPassword,
+        accessCode: 'COMMISSIONER',
         role: 'ADMIN',
         isActive: true,
       },
@@ -174,7 +171,7 @@ export async function GET() {
       message: 'Database set up successfully!',
       status: 'ok',
       created: {
-        admin: 'admin@sayamen.com (password: Admin2026!)',
+        admin: 'Login with access code: COMMISSIONER',
         majors: 4,
         players: allPlayers.length,
       },
