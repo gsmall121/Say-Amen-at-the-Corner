@@ -255,13 +255,9 @@ function findScore(
 // SCORING
 // ─────────────────────────────────────────────
 
-const CUT_PENALTY = 20;
-
 function playerPoolScore(esp: ESPNPlayerScore | null): number {
   if (!esp) return 0; // not found / not started → E
-  if (esp.status === 'cut') return CUT_PENALTY;
-  if (esp.status === 'wd' || esp.status === 'dq') return CUT_PENALTY;
-  return esp.score ?? 0; // null score (not started) → E
+  return esp.score ?? 0; // use actual score for all players, including CUT/WD/DQ
 }
 
 interface ScoredPick {
@@ -445,7 +441,7 @@ export default function MastersLeaderboard() {
               </span>
             ))}
             <span className="text-xs font-serif" style={{ color: 'rgba(245,239,224,0.35)' }}>
-              · Best 8 of 10 picks · CUT/WD = +20
+              · Best 8 of 10 picks
             </span>
           </div>
 
@@ -662,7 +658,7 @@ export default function MastersLeaderboard() {
         )}
 
         <p className="mt-6 font-serif text-xs text-center" style={{ color: 'rgba(245,239,224,0.25)' }}>
-          Scores sourced from ESPN · Refreshes every 60 seconds · CUT/WD/DQ scored as +20
+          Scores sourced from ESPN · Refreshes every 60 seconds
         </p>
       </main>
 
